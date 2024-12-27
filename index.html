@@ -1,123 +1,258 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velocímetro GPS Digital</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+    <title>Velocímetro GPS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Fuente pixelada -->
 
-        html, body {
+    <style>
+        body, html {
             height: 100%;
-            margin: 0;
-            padding: 0;
+            overflow: hidden;
+            background-color: black; /* Fondo negro */
+            color: #00FF00; /* Texto verde brillante */
+            font-family: 'Press Start 2P', cursive; /* Fuente pixelada */
         }
-        body {
-            background-color: #000;
-            color: #0f0;
-            display: flex;
-            flex-direction: column;
-            font-family: 'VT323', monospace;
-        }
-        .container {
-            width: 100%;
-            max-width: 100%;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-        }
-        #velocimetro {
-            flex: 1;
-            background-color: #001100;
-            border: 5px solid #0f0;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        .fullscreen-container {
+            height: 90vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-bottom: 0px;
         }
-        #velocidad {
-            font-size: 20vw;
-            text-align: center;
-            margin-bottom: 10px;
+        .speed-display {
+            font-size: 3rem;
+            font-weight: bold;
+            border: 2px solid #00FF00; /* Borde verde */
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
+            border-radius: 10px;
         }
-        #unidad {
-            font-size: 8vw;
-            text-align: center;
+        .metric {
+            font-size: 15px;
+            border: 1px solid #00FF00; /* Borde verde */
+            padding: 10px;
+            margin: 2px;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+            border-radius: 5px;
         }
-        .botones {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
+        .button {
+            background-color: transparent; /* Fondo transparente */
+            border: 2px solid #00FF00; /* Borde verde */
+            color: #00FF00; /* Texto verde */
+            font-size: 1.0rem;
+            width: 100%;
+            height: 60px;
+            transition: background-color 0.3s;
         }
-        .btn {
-            font-family: 'VT323', monospace;
-            font-size: 4vw;
-            padding: 10px 20px;
+        .button:hover {
+            background-color: rgba(0, 255, 0, 0.2); /* Efecto hover */
+        }
+        .divider {
+            border-top: 1px solid #00FF00; /* Divisores verdes */
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        
-        <div id="velocimetro">
-            <div id="velocidad">00.0</div>
-            <div id="unidad">KM/H</div>
-        </div>
-        <div class="botones">
-            <button id="iniciar" class="btn btn-success">INICIAR</button>
-            <button id="detener" class="btn btn-danger" disabled>DETENER</button>
-        </div>
+    <div class="fullscreen-container">
+        <header class="text-center py-2">
+            <h1 class="h1 mb-0"><span id="modeDisplay">Bici</span></h1>
+        </header>
+
+        <main class="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+            <div class="text-center mb-4">
+                <div class="speed-display" id="speed">0</div>
+                <div class="metric" id="speedUnit">km/h</div>
+            </div>
+
+            <div class="row w-100 text-center">
+                <div class="col-6 col-md-3 mb-3">
+                    <div class="metric" id="distance">0.00 km</div>
+                    <small>Distancia</small>
+                </div>
+                <div class="col-6 col-md-3 mb-3">
+                    <div class="metric" id="avgSpeed">0 km/h</div>
+                    <small>Velocidad Media</small>
+                </div>
+                <div class="col-6 col-md-3 mb-3">
+                    <div class="metric" id="maxSpeed">0 km/h</div>
+                    <small>Velocidad Máxima</small>
+                </div>
+                <div class="col-6 col-md-3 mb-3">
+                    <div class="metric" id="altitude">0 m</div>
+                    <small>Altitud</small>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row w-100 text-center">
+                <div class="col-6 mb-3">
+                    <div class="metric" id="startTime">--:--:--</div>
+                    <small>Hora de Inicio</small>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="metric" id="elapsedTime">00:00:00</div>
+                    <small>Tiempo Transcurrido</small>
+                </div>
+            </div>
+        </main>
+
+        <footer class="py-2">
+            <div class="container">
+                <div class="row">
+                    <div class="col-4">
+                        <button id="startStopBtn" class="button" style="width: 150px; height: 70px;"><i class="bi bi-play" style="font-size: 2em;"></i></button>
+                    </div>
+                    <div class="col-4">
+                        <button id="resetBtn" class="button" style="width: 150px; height: 70px;"><i class="bi bi-arrow-counterclockwise" style="font-size: 2em;"></i></button>
+                    </div>
+                    <div class="col-4">
+                        <button id="saveBtn" class="button" style="width: 150px; height: 70px;"><i class="bi bi-save" style="font-size: 2em;"></i></button>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <button id="modeToggleBtn" class="button" style="width: 170px; height: 70px;"><i class="bi bi-arrow-repeat" style="font-size: 2em;"></i></button>
+                    </div>
+                    <div class="col-6">
+                        <button id="fullscreenBtn" class="button" style="width: 170px; height: 70px;"><i class="bi bi-fullscreen" style="font-size: 2em;"></i></button>
+                    </div>
+                </div>
+                <div class="row mt-5 text-center">
+                    <div class="col-12">
+                        <h5> 
+                            <i class="bi bi-activity"></i>
+                            <i class="bi bi-activity"></i>
+                           
+                            @Emiliando 2024
+                           
+                            <i class="bi bi-activity"></i>
+                            <i class="bi bi-activity"></i>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let watchId;
-        const velocidadElement = document.getElementById('velocidad');
-        const iniciarBtn = document.getElementById('iniciar');
-        const detenerBtn = document.getElementById('detener');
+        let tracking = false;
+        let startTime, elapsedTime = 0, distance = 0, maxSpeed = 0, avgSpeed = 0;
+        let mode = 'bici'; // 'car' or 'bike'
+        let interval;
 
-        function iniciarVelocimetro() {
-            if ("geolocation" in navigator) {
-                watchId = navigator.geolocation.watchPosition(actualizarVelocidad, manejarError, {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
-                });
-                iniciarBtn.disabled = true;
-                detenerBtn.disabled = false;
+        function startTrackingMetrics() {
+            if (navigator.geolocation) {
+                startTime = new Date();
+                tracking = true;
+                document.getElementById("startTime").textContent = startTime.toLocaleTimeString();
+                interval = setInterval(updateMetrics, 1000);
             } else {
-                alert("La geolocalización no está disponible en este dispositivo.");
+                alert("GPS no disponible.");
             }
         }
 
-        function detenerVelocimetro() {
-            if (watchId !== undefined) {
-                navigator.geolocation.clearWatch(watchId);
-                iniciarBtn.disabled = false;
-                detenerBtn.disabled = true;
-                velocidadElement.textContent = "00.0";
+        function stopTrackingMetrics() {
+            tracking = false;
+            clearInterval(interval);
+        }
+
+        function updateMetrics() {
+            navigator.geolocation.getCurrentPosition(position => {
+                const speed = position.coords.speed ? position.coords.speed * 3.6 : 0; // m/s to km/h
+                const altitude = position.coords.altitude || 0;
+                const currentTime = new Date();
+                elapsedTime = Math.floor((currentTime - startTime) / 1000);
+                distance += speed / 3600; // km
+
+                if (speed > maxSpeed) maxSpeed = speed;
+
+                document.getElementById("speed").textContent = speed.toFixed(2);
+                document.getElementById("altitude").textContent = altitude.toFixed(2) + " m";
+                document.getElementById("elapsedTime").textContent = formatTime(elapsedTime);
+                document.getElementById("distance").textContent = distance.toFixed(2) + " km";
+                avgSpeed = distance / (elapsedTime / 3600);
+                document.getElementById("avgSpeed").textContent = avgSpeed.toFixed(2) + " km/h";
+                document.getElementById("maxSpeed").textContent = maxSpeed.toFixed(2) + " km/h";
+            }, handleError, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function toggleMode() {
+            mode = (mode === 'bici') ? 'auto' : 'bici';
+            document.getElementById("modeDisplay").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+            maxSpeed = 0; // Reset max speed when changing mode
+            document.getElementById("maxSpeed").textContent = "0.00 km/h";
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
             }
         }
 
-        function actualizarVelocidad(position) {
-            const velocidad = position.coords.speed ? position.coords.speed * 3.6 : 0;
-            velocidadElement.textContent = velocidad.toFixed(1).padStart(4, '0');
+        function handleError(error) {
+            console.error("Error: ", error);
+            alert("Error: " + error.message);
         }
 
-        function manejarError(error) {
-            console.error("Error al obtener la ubicación:", error.message);
-            alert("Error al obtener la ubicación. Por favor, asegúrate de que el GPS esté activado y hayas dado permiso para acceder a tu ubicación.");
+        function saveData() {
+            const data = {
+                distance: distance.toFixed(2),
+                avgSpeed: avgSpeed.toFixed(2),
+                maxSpeed: maxSpeed.toFixed(2),
+                startTime: startTime.toLocaleTimeString(),
+                elapsedTime: formatTime(elapsedTime)
+            };
+            console.log("Datos guardados:", data);
+            alert("Datos guardados: " + JSON.stringify(data));
         }
 
-        iniciarBtn.addEventListener('click', iniciarVelocimetro);
-        detenerBtn.addEventListener('click', detenerVelocimetro);
+        function resetData() {
+            distance = 0;
+            elapsedTime = 0;
+            maxSpeed = 0;
+            avgSpeed = 0;
+            document.getElementById("distance").textContent = "0.00 km";
+            document.getElementById("elapsedTime").textContent = "00:00:00";
+            document.getElementById("maxSpeed").textContent = "0.00 km/h";
+            document.getElementById("avgSpeed").textContent = "0.00 km/h";
+            document.getElementById("speed").textContent = "0.00";
+            document.getElementById("altitude").textContent = "0 m";
+        }
+
+        // Eventos para los botones
+        document.getElementById("startStopBtn").addEventListener("click", function() {
+            if (!tracking) {
+                startTrackingMetrics();
+                this.textContent = "Detener";
+            } else {
+                stopTrackingMetrics();
+                this.textContent = "Iniciar";
+            }
+        });
+
+        document.getElementById("modeToggleBtn").addEventListener("click", toggleMode);
+        document.getElementById("fullscreenBtn").addEventListener("click", toggleFullscreen);
+        document.getElementById("saveBtn").addEventListener("click", saveData);
+        document.getElementById("resetBtn").addEventListener("click", resetData);
     </script>
 </body>
 </html>
